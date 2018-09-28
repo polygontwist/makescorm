@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Windows, Messages,StdCtrls, Grids, Buttons, ComCtrls, Menus
+  StdCtrls, Grids, Buttons, ComCtrls, Menus
   ,myini
   ,myDateiio
   ,myString
@@ -91,7 +91,7 @@ type
     procedure f3Click(Sender: TObject);
     procedure f4Click(Sender: TObject);
     procedure f5Click(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormClose(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure laden1Click(Sender: TObject);
@@ -342,7 +342,7 @@ begin
   loadProjekt(merkeprojekteDateien[5]);
 end;
 
-procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+procedure TForm1.FormClose(Sender: TObject);
 begin
 
  writeINIstring(ProgammINI,'prg','lastQuelle',quellPfad);

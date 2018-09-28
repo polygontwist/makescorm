@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 123
+  Left = 326
   Height = 608
-  Top = 166
+  Top = 134
   Width = 672
   Caption = 'makeSCORM V4'
   ClientHeight = 588
@@ -55,10 +55,9 @@ object Form1: TForm1
       EditLabel.AnchorSideRight.Side = asrBottom
       EditLabel.AnchorSideBottom.Control = EditFilter
       EditLabel.Left = 8
-      EditLabel.Height = 15
-      EditLabel.Top = 86
+      EditLabel.Height = 1
+      EditLabel.Top = 100
       EditLabel.Width = 184
-      EditLabel.Caption = 'EditFilter'
       EditLabel.ParentColor = False
       TabOrder = 2
       Text = '.psd, .scc, .db'
