@@ -1,0 +1,5 @@
+[data]
+quellOrdner=D:\delphi_lazarus\makescorm\testsys\
+erstedatei=index.htm
+Filter=.psd, .scc, .db, .exe
+infodateipfad=D:\delphi_lazarus\makescorm\bildschirmarbeitsplatz.info

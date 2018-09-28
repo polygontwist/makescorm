@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<lom xmlns="http://www.imsglobal.org/xsd/imsmd_rootv1p2p1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsmd_rootv1p2p1.xsd">
+<general>
+<title>
+<langstring xml:lang="de"></langstring>
+</title>
+<catalogentry>
+<catalog>ANOVA Course Catalogue ID</catalog>
+<entry>
+<langstring xml:lang="de-de">3000-01-00</langstring>
+</entry>
+</catalogentry>
+<description>
+<langstring xml:lang="de"></langstring>
+</description>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+<aggregationlevel>
+    <source>LOMv1.0</source>
+    <value>3</value>
+</aggregationlevel>
+</general>
+<lifecycle>
+<version>
+<langstring xml:lang="de-de">1.0</langstring>
+</version>
+<contribute>
+</contribute>
+</lifecycle>
+<metametadata>
+<metadatascheme>ANOVA_Metadata_Editor_v0.81</metadatascheme>
+</metametadata>
+<technical>
+<format>text/html</format>
+<format>text/xml</format>
+<location type="TEXT">.</location>
+<requirement>
+<minimumversion>5.0</minimumversion>
+</requirement>
+</technical>
+<educational>
+</educational>
+<rights>
+<cost>
+    <source>LOMv1.0</source>
+    <value>no</value>
+</cost>
+<copyrightandotherrestrictions>
+    <source>LOMv1.0</source>
+    <value>no</value>
+</copyrightandotherrestrictions>
+<description>
+<langstring xml:lang="de-de">Provided as-is; only to be used embedded in the blended learning scenario.</langstring>
+</description>
+</rights>
+<classification>
+<description>
+<langstring xml:lang="de-de"></langstring>
+</description>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+</classification>
+<classification>
+<description>
+<langstring xml:lang="de-de"></langstring>
+</description>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+<keyword>
+<langstring xml:lang="de-de"></langstring>
+</keyword>
+</classification>
+</lom>
