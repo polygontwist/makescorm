@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CONFIG>
-  <Compiler Value="C:\lazarus\fpc\2.6.4\bin\i386-win32\fpc.exe" Date="1162572796"/>
-  <Params Value=" -MObjFPC -Scghi -CX -Os3 -Xs -XX -WG -vewnhi -FiD:\delphi_lazarus\makescorm_v4L\v4L\lib\i386-win32 -FuC:\lazarus\lcl\units\i386-win32\win32 -FuC:\lazarus\lcl\units\i386-win32 -FuC:\lazarus\components\lazutils\lib\i386-win32 -FuC:\lazarus\packager\units\i386-win32 -FuD:\delphi_lazarus\makescorm_v4L\v4L\ -FUD:\delphi_lazarus\makescorm_v4L\v4L\lib\i386-win32\ -l -omakescorm.exe -dLCL -dLCLwin32 project1.lpr"/>
-</CONFIG>
