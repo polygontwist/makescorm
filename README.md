@@ -9,4 +9,4 @@ Das Programm wurde ursprünglich in Delphi geschrieben und diese Version mit Laz
 
 ## Programm selber kompilieren
 
-Zum kompilieren habe ich die Version 1.6.4 des Free Pascal Lazarus Prjektes (http://www.lazarus-ide.org/) benutzt.
+Zum kompilieren habe ich die Version 2.2.6 des Free Pascal Lazarus Prjektes (http://www.lazarus-ide.org/) benutzt.

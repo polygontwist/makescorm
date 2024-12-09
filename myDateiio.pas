@@ -3,6 +3,7 @@ unit myDateiio;
 interface
 
 uses SysUtils
+  ,DateUtils
   ,Windows
   //,FileCtrl
   //,Dialogs
@@ -41,6 +42,8 @@ uses SysUtils
 
 
   procedure lesedateienein(pfad,thefilter:string;var dateiliste:TStringList;inversfilter:Boolean); //liest Dateinamen im 'Ordner' in TStringList (dateiliste) ein
+  //function CompareDates(List: TStringList; Index1, Index2: Integer): Integer;
+  //procedure SortByDateTime(List: TStringList);
 
   //Gibt Inhalt eines Verzechnisses, inkl Ordner und moveupBacklink
   function GetFileDir(Directory: string; var Files: TStringList):integer;
@@ -132,6 +135,8 @@ CSIDL_STARTUP             Autostart
     end;
 // SHFILEOPSTRUCT, FAR *LPSHFILEOPSTRUCT;
    }
+
+
 implementation
 
 
@@ -148,6 +153,7 @@ begin
   begin
     MessageBox(hWindow, 'Couldn''t get pointer to IMalloc interface.',
                'SHGetMalloc(pMalloc)', 16);
+    Result := '';
     Exit;
   end;
 
@@ -177,7 +183,7 @@ var SearchRec: TSearchRec;
     merken:boolean;
 begin
   //Zuerst alle Dateien im aktuelle Verzeichnis finden
-  if FindFirst(SlashSep(Directory, '*.*'), faAnyFile and not faDirectory and not faVolumeID,
+  if FindFirst(SlashSep(Directory, '*.*'), faAnyFile and not faDirectory ,
   SearchRec) = 0 then
   begin
     try
@@ -232,7 +238,7 @@ function gibtesDatei(pfad,suchstr:string):boolean;
     result:=false;
 
     //Zuerst alle Dateien im aktuelle Verzeichnis finden
-    if SysUtils.FindFirst(SlashSep(pfad, '*.*'), faAnyFile and not faDirectory and not faVolumeID, SearchRec) = 0 then
+    if SysUtils.FindFirst(SlashSep(pfad, '*.*'), faAnyFile and not faDirectory, SearchRec) = 0 then
      begin
      try
       repeat
@@ -448,42 +454,97 @@ begin
 end;
 
 //liest Dateinamen in TStringList (dateiliste) ein
-procedure lesedateienein(pfad,thefilter:string;var dateiliste:TStringList;inversfilter:Boolean);//positiv Filter!
-   procedure leseloop(pfad,vorpfad:string;inversfilter:Boolean);
-   var SearchRec: TSearchRec;
-       ffi:integer;
-       hs:string;
-   begin
-    ffi:=FindFirst(SlashSep(pfad,'*.*'), faAnyFile and not faVolumeID, SearchRec);
-    while ffi=0 do
-    begin
-     if (SearchRec.Name<>'.')and(SearchRec.Name<>'..')then
-      begin
-      if (SearchRec.Attr and faDirectory = faDirectory) then
-       begin //unterordner lesen
-        vorpfad:=vorpfad+SearchRec.Name+'\';
-        leseloop(pfad+SearchRec.Name+'\',vorpfad,inversfilter);
-        vorpfad:=copy(vorpfad,1,length(vorpfad)-length(SearchRec.Name)-1)
-       end
-      else
-        begin
-         hs:=copy(SearchRec.Name,length(SearchRec.Name)-3,length(SearchRec.Name));//Dateiendung
+//--------v2---------
+function CompareFileDates(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  FileDate1, FileDate2: TDateTime;
+  FileAge1, FileAge2: Integer;
+begin
+ // Hole das Änderungsdatum der beiden Dateien
+ FileAge1 := FileAge(List.Strings[Index1]);
+ FileAge2 := FileAge(List.Strings[Index2]);
 
-         if(inversfilter)then
-          begin
-               if pos(hs,thefilter)<1 then dateiliste.Add(vorpfad+SearchRec.Name);      //Endung im Filter?
-          end
-          else
-          if pos(hs,thefilter)>0 then dateiliste.Add(vorpfad+SearchRec.Name);      //Endung im Filter?
+ // Überprüfen, ob die Dateiausgabe gültig ist (FileAge gibt -1 zurück, wenn ein Fehler auftritt)
+   if (FileAge1 = -1) or (FileAge2 = -1) then
+   begin
+     Result := -1;  // Fehlerbehandlung, falls ein ungültiges Alter zurückgegeben wird
+     Exit;
+   end;
+
+   // Konvertiere das Änderungsdatum in ein TDateTime-Format
+   FileDate1 := FileDateToDateTime(FileAge1);
+   FileDate2 := FileDateToDateTime(FileAge2);
+
+  // Vergleiche die Änderungsdaten (neueste zuerst)
+  Result := CompareDate(FileDate2, FileDate1);
+end;
+procedure SortFilesByDate(List: TStringList);
+begin
+  List.CustomSort(@CompareFileDates);
+end;
+
+procedure lesedateienein(pfad, thefilter: string; var dateiliste: TStringList; inversfilter: Boolean);
+
+  procedure leseloop(pfad, vorpfad: string; inversfilter: Boolean);
+  var
+    SearchRec: TSearchRec;
+    ffi: integer;
+    hs: string;
+    lastWriteTime: TDateTime;
+  begin
+    ffi := FindFirst(SlashSep(pfad, '*.*'), faAnyFile, SearchRec);
+    while ffi = 0 do
+    begin
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+      begin
+        if (SearchRec.Attr and faDirectory = faDirectory) then
+        begin
+          // Unterordner lesen
+          vorpfad := vorpfad + SearchRec.Name + '\';
+          leseloop(pfad + SearchRec.Name + '\', vorpfad, inversfilter);
+          vorpfad := copy(vorpfad, 1, length(vorpfad) - length(SearchRec.Name) - 1);
+        end
+        else
+        begin
+          hs := copy(SearchRec.Name, length(SearchRec.Name) - 3, length(SearchRec.Name)); // Dateiendung
+
+         //isfile(vorpfad + SearchRec.Name)
+         if (FileExists(pfad + SearchRec.Name))then
+            begin
+
+              if (inversfilter) then
+              begin
+                if Pos(hs, thefilter) < 1 then
+                begin
+                  lastWriteTime := FileDateToDateTime(FileAge(pfad + SearchRec.Name));
+                  dateiliste.AddObject(vorpfad + SearchRec.Name, TObject(lastWriteTime));//**
+                end;
+              end
+              else
+              begin
+                if Pos(hs, thefilter) > 0 then
+                begin
+                  lastWriteTime := FileDateToDateTime(FileAge(pfad + SearchRec.Name));
+                  dateiliste.AddObject(vorpfad + SearchRec.Name, TObject(lastWriteTime)); //**
+                end;
+              end;
+
+            end;
+
+
         end;
       end;
-    ffi:=FindNext(SearchRec);
-   end;
-   end;
+      ffi := FindNext(SearchRec);
+    end;
+  end;
+
 begin
- dateiliste.Clear;
- leseloop(pfad,'',inversfilter);
+  dateiliste.Clear;
+  leseloop(pfad, '', inversfilter);
+  SortFilesByDate(dateiliste);
 end;
+
+
 
 
 
@@ -496,7 +557,7 @@ begin
   TStringList(Files).Sorted := True;
   result:=0;
   //Zuerst alle Dateien im aktuelle Verzeichnis finden   not faDirectory and
-  if FindFirst(SlashSep(Directory, '*.*'), faAnyFile and not faVolumeID, SearchRec) = 0 then
+  if FindFirst(SlashSep(Directory, '*.*'), faAnyFile, SearchRec) = 0 then
   begin
     try
       repeat

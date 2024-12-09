@@ -5,8 +5,10 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, Grids, Buttons, ComCtrls, Menus
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls
+  //,Windows
+  //, Messages
+  ,StdCtrls, Grids, Buttons, ComCtrls, Menus
   ,myini
   ,myDateiio
   ,myString
@@ -29,36 +31,47 @@ type
 
   TForm1 = class(TForm)
     ButtonAddMemo: TButton;
-    ButtonQuellen: TBitBtn;
     Buttongetstartdatei: TBitBtn;
-    ButtonInfoNeu: TButton;
     ButtonInfoLaden: TButton;
+    ButtonInfoNeu: TButton;
     ButtonInfoSpeichern: TButton;
     ButtonMake: TButton;
+    ButtonQuellen: TBitBtn;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
     CheckBox5: TCheckBox;
+    ComboBoxManifest: TComboBox;
+    EditFilter: TLabeledEdit;
     GroupBox1: TGroupBox;
     Label1: TLabel;
-    LabelQuellpfad: TLabel;
+    Label2: TLabel;
     LabelFisrtdatei: TLabel;
+    LabelQuellpfad: TLabel;
     LStatus: TLabel;
-    EditFilter: TLabeledEdit;
     MainMenu1: TMainMenu;
-    Memo1: TMemo;
     laden2: TMenuItem;
     f2: TMenuItem;
     f3: TMenuItem;
     f4: TMenuItem;
     f5: TMenuItem;
+    Memo1: TMemo;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel5: TPanel;
+    ProgressBar1: TProgressBar;
     Quellordner1: TMenuItem;
     neu2: TMenuItem;
+    ScrollBox1: TScrollBox;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     speichern2: TMenuItem;
     Projekt: TMenuItem;
     f1: TMenuItem;
+    Splitter1: TSplitter;
+    StaticText1: TStaticText;
+    StringGridInfo: TStringGrid;
     zielundquellen1: TMenuItem;
     Infodaten1: TMenuItem;
     neu1: TMenuItem;
@@ -68,15 +81,7 @@ type
     beenden1: TMenuItem;
     N2: TMenuItem;
     OpenDialog1: TOpenDialog;
-    Panel1: TPanel;
-    Panel2: TPanel;
-    Panel3: TPanel;
-    Panel5: TPanel;
-    ProgressBar1: TProgressBar;
     SaveDialog1: TSaveDialog;
-    Splitter1: TSplitter;
-    StaticText1: TStaticText;
-    StringGridInfo: TStringGrid;
     procedure beenden1Click(Sender: TObject);
     procedure ButtonAddMemoClick(Sender: TObject);
     procedure ButtongetstartdateiClick(Sender: TObject);
@@ -85,6 +90,7 @@ type
     procedure ButtonInfoSpeichernClick(Sender: TObject);
     procedure ButtonMakeClick(Sender: TObject);
     procedure ButtonQuellenClick(Sender: TObject);
+    procedure ComboBoxManifestChange(Sender: TObject);
     procedure EditFilterChange(Sender: TObject);
     procedure f1Click(Sender: TObject);
     procedure f2Click(Sender: TObject);
@@ -97,12 +103,15 @@ type
     procedure laden1Click(Sender: TObject);
     procedure laden2Click(Sender: TObject);
     procedure neu2Click(Sender: TObject);
-    procedure Panel1Click(Sender: TObject);
     procedure Panel1Resize(Sender: TObject);
+    procedure ProjektClick(Sender: TObject);
+    procedure Quellordner1Click(Sender: TObject);
     procedure speichern1Click(Sender: TObject);
     procedure speichern2Click(Sender: TObject);
     procedure zielundquellen1Click(Sender: TObject);
     procedure neu1Click(Sender: TObject);
+    procedure MenuItemClick(Sender: TObject);  //
+
   private
     { private declarations }
     procedure setmakebutt;
@@ -120,7 +129,10 @@ type
     procedure create_imsmd_rootv1p2p1;
     procedure create_sco_data;
     procedure create_projekt;
+    procedure getManifestvorlagen;
 
+    procedure addFiletoMerkliste(neuerEintrag:string);
+    procedure refreshAnzeige;
 
   public
     { public declarations }
@@ -138,6 +150,8 @@ var
   filter:string;
 
   vorlagenpfad:string;
+  ismanifestvorlage:string;
+  projeteablagepfad:string;
 
   dateiliste:TStringList;
 
@@ -146,62 +160,30 @@ var
 implementation
 
 {$R *.lfm}
+//var zeigeletzt:integer=6;
 var merkeprojekteDateien:array[1..5]of string;
 
 { TForm1 }
 
 
+procedure TForm1.MenuItemClick(Sender: TObject);
+begin
+  ShowMessage('Element wurde geklickt: '+ TMenuItem(Sender).Caption +' Nummer: ' + IntToStr(TMenuItem(Sender).Tag) );
+end;
+
 
 procedure TForm1.FormShow(Sender: TObject);
-var temp,temp2:string;
-    t,anz,p:integer;
 begin
-  //ini
 
+  if (projeteablagepfad='') or not DirectoryExists(projeteablagepfad) then
+     projeteablagepfad:=ExtractFilePath(Application.ExeName);
 
+  refreshAnzeige();
 
-  //letzten Projekte auflisten
-   dateiliste.Clear;
-   temp:=ExtractFilePath(Application.ExeName);
-   //quellPfad:=ExtractFilePath(Application.ExeName);
-
-   lesedateienein(temp,'',dateiliste,true);
-   anz:=0;
-  if dateiliste.Count>-1 then
-   begin
-    for t:=0 to dateiliste.count-1 do
-           begin
-             temp2:=dateiliste.Strings[t];
-             if pos('.prj',temp2)>0 then
-             begin
-              inc(anz);
-              if (anz>0)and(anz<6) then merkeprojekteDateien[anz]:=temp+temp2;
-
-               p:=lastpos(temp2,'\');
-               temp2:=copy(temp2,p+1,length(temp2));
-
-
-              case anz of
-               1: begin f1.Caption:=temp2; f1.Visible:=true; end;
-               2: begin f2.Caption:=temp2; f2.Visible:=true; end;
-               3: begin f3.Caption:=temp2; f3.Visible:=true; end;
-               4: begin f4.Caption:=temp2; f4.Visible:=true; end;
-               5: begin f5.Caption:=temp2; f5.Visible:=true; end;
-              end;
-
-             end;
-             if anz>0 then N2.Visible:=true;
-
-           end;
-
-   end;
    dateiliste.Clear;
    LabelFisrtdatei.Caption:='Es wurde noch keine start-Datei ausgewählt.';
    newProjekt;
  end;
-
-
-
 
 
 
@@ -293,7 +275,7 @@ begin
  ProgressBar1.Position:=5;
  lesedateienein(quellPfad,filter,dateiliste,true);    //liest Dateinamen in TStringList (dateiliste) ein
  ProgressBar1.Position:=10;
- create_scormdata;
+ create_scormdata();
  showmessage('Dateien wurden erzeugt.');
  ProgressBar1.Position:=0;
 end;
@@ -315,6 +297,11 @@ if(SelectDirectoryDialog1.Execute)then
 
     ButtonAddMemo.Enabled:=true;
  end;
+end;
+
+procedure TForm1.ComboBoxManifestChange(Sender: TObject);
+begin
+ ismanifestvorlage:=ComboBoxManifest.Text;
 end;
 
 procedure TForm1.EditFilterChange(Sender: TObject);
@@ -343,12 +330,22 @@ begin
 end;
 
 procedure TForm1.FormClose(Sender: TObject);
+var i,maxIndex:integer;
 begin
 
  writeINIstring(ProgammINI,'prg','lastQuelle',quellPfad);
  writeINIstring(ProgammINI,'prg','Vorlagen',vorlagenpfad);
  writeINIstring(ProgammINI,'prg','Infodaten',infodateipfad);
  writeINIstring(ProgammINI,'prg','Filter',filter);
+ writeINIstring(ProgammINI,'prg','ismanifestvorlage',ismanifestvorlage);
+ writeINIstring(ProgammINI,'prg','projeteablagepfad',projeteablagepfad);
+
+ //merkeprojekteDateien
+ maxIndex := High(merkeprojekteDateien);
+ for i := 1 to maxIndex do
+    begin
+       writeINIstring(ProgammINI,'lastfile','f'+IntToStr(i),merkeprojekteDateien[i]);
+    end;
 
  writeINIint(ProgammINI,'prg','width',Form1.Width);
  writeINIint(ProgammINI,'prg','height',Form1.Height);
@@ -358,15 +355,35 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var tempi:integer;
+var tempi,i,maxIndex:integer;
 begin
   //ProgammINI
  if dateida(ProgammINI) then
  begin
   quellPfad:=readINIstring(ProgammINI,'prg','lastQuelle');
   vorlagenpfad:=readINIstring(ProgammINI,'prg','Vorlagen');
+
+  if not DirectoryExists(vorlagenpfad) then
+    vorlagenpfad:=ExtractFilePath(Application.ExeName)+'vorlagen\';
+
   infodateipfad:=readINIstring(ProgammINI,'prg','Infodaten');
   filter:=readINIstring(ProgammINI,'prg','Filter');
+
+  ismanifestvorlage:=readINIstring(ProgammINI,'prg','ismanifestvorlage');
+  if ismanifestvorlage='' then ismanifestvorlage:='imsmanifest_default.xml';
+  getManifestvorlagen();
+
+  projeteablagepfad:=readINIstring(ProgammINI,'prg','projeteablagepfad');
+  if (projeteablagepfad='') or not DirectoryExists(projeteablagepfad) then
+     projeteablagepfad:=ExtractFilePath(Application.ExeName);
+
+  //lastfileslist
+  //merkeprojekteDateien
+  maxIndex := High(merkeprojekteDateien);  //5 einträge maximal
+  for i := 1 to maxIndex do
+  begin
+    merkeprojekteDateien[i]:=readINIstring(ProgammINI,'lastfile','f'+IntToStr(i));
+   end;
 
   EditFilter.Text:=filter;
   LabelQuellpfad.Caption:=quellPfad;
@@ -375,7 +392,7 @@ begin
   if tempi>0 then Form1.Width:=tempi;
   tempi:=readINIint(ProgammINI,'prg','height');
   if tempi>0 then Form1.Height:=tempi;
-  {tempi:=readINIint(ProgammINI,'prg','left');
+  {tempi:=readINIint(ProgammINI,'prg','left');    //Mehrmonitor!!
   if tempi>0 then Form1.Left:=tempi;
   tempi:=readINIint(ProgammINI,'prg','top');
   if tempi>0 then Form1.Top:=tempi;
@@ -400,7 +417,7 @@ procedure TForm1.loadInfodaten(quelle:string);
 begin
   infodateipfad:=quelle;
   GroupBox1.Caption:='Infodaten ('+infodateipfad+')';
-  newInfodata;//inhalt löschen
+  newInfodata();//inhalt löschen
   StringGridInfo.Cells[1,1]:=readINIstring(infodateipfad,'Daten','Sprache');     //Sprache
   StringGridInfo.Cells[1,2]:=readINIstring(infodateipfad,'Daten','Titel');       //Titel
   StringGridInfo.Cells[1,3]:=readINIstring(infodateipfad,'Daten','Beschreibung');//Beschreibung
@@ -409,16 +426,24 @@ begin
   LStatus.Caption:='Infodaten geladen';
 end;
 
+procedure TForm1.ProjektClick(Sender: TObject);
+begin
 
+end;
+
+procedure TForm1.Quellordner1Click(Sender: TObject);
+begin
+
+end;
 
 procedure TForm1.speichern1Click(Sender: TObject);
 begin
- saveProjekt;
+ saveProjekt();
 end;
 
 procedure TForm1.speichern2Click(Sender: TObject);
 begin
-  saveInfodaten;
+  saveInfodaten();
 end;
 procedure TForm1.saveInfodaten;
 begin
@@ -448,7 +473,7 @@ end;
 
 procedure TForm1.neu1Click(Sender: TObject);
 begin
-  newProjekt;
+  newProjekt();
 end;
 
 procedure TForm1.newProjekt;
@@ -467,12 +492,12 @@ begin
  StringGridInfo.Cells[1,0]:='Daten';
  newInfodata;
 
- OpenDialog1.InitialDir:=ExtractFilePath(Application.ExeName);
- SaveDialog1.InitialDir:=ExtractFilePath(Application.ExeName);
+ OpenDialog1.InitialDir:=projeteablagepfad;
+ SaveDialog1.InitialDir:=projeteablagepfad;
 
  //filter:='.psd, .scc';
 
- projektdateipfad:='';
+ projektdateipfad:='';   //projeteablagepfad
  infodateipfad:='';
 
  infodateipfad:=ExtractFilePath(Application.ExeName);
@@ -483,14 +508,17 @@ end;
 procedure TForm1.loadProjekt(datei:string);
 var istladen:boolean;
     projektdatei:string;
+    temp:string;
 begin
  istladen:=false;
+ projektdatei:='';
  if length(datei)=0 then
  begin
   OpenDialog1.Filter:='Projekt (*.prj)|*.prj|Alle Dateien (*.*)|*.*';
-  OpenDialog1.InitialDir:=projektdateipfad;
+  OpenDialog1.InitialDir:=projeteablagepfad;
   if OpenDialog1.Execute then istladen:=true; //im ini-format
   projektdatei:=OpenDialog1.FileName;
+
  end
  else
   if dateida(datei)then
@@ -499,9 +527,11 @@ begin
    istladen:=true;
   end;
 
-
  if istladen then  //im ini-format
   begin
+   addFiletoMerkliste(projektdatei);
+
+   projeteablagepfad:=OpenDialog1.InitialDir;
    projektdateipfad:=projektdatei;
 
    quellPfad:=readINIstring(projektdateipfad,'data','quellOrdner');
@@ -529,6 +559,12 @@ begin
      isterstedatei:=true;
     end;
 
+    temp:=readINIstring(projektdateipfad,'data','ismanifestvorlage');
+    if length(temp)>0 then
+      begin
+         ismanifestvorlage:=temp;
+         getManifestvorlagen();
+      end;
 
     filter:=readINIstring(projektdateipfad,'data','Filter');
     EditFilter.Text:=filter;
@@ -546,11 +582,14 @@ end;
 
 procedure TForm1.saveProjekt;
 begin
- SaveDialog1.FileName:=projektdateipfad;
  SaveDialog1.Filter:='Infodatendatei (*.prj)|*.prj|Alle Dateien (*.*)|*.*';
  SaveDialog1.FileName:=projektdateipfad;
+ SaveDialog1.InitialDir:=projeteablagepfad;
+
  if SaveDialog1.Execute then
   begin
+   projeteablagepfad:=SaveDialog1.InitialDir;
+
    projektdateipfad:=SaveDialog1.FileName;
    if pos('.prj',projektdateipfad)=0 then projektdateipfad:=projektdateipfad+'.prj';
 
@@ -558,7 +597,9 @@ begin
    writeINIstring(projektdateipfad,'data','erstedatei',erstedatei);
    writeINIstring(projektdateipfad,'data','Filter'     ,filter);
    writeINIstring(projektdateipfad,'data','infodateipfad',infodateipfad);
+   writeINIstring(projektdateipfad,'data','ismanifestvorlage',ismanifestvorlage);
 
+   addFiletoMerkliste(projektdateipfad);
 
    LStatus.Caption:='Projekt gespeichert.';
   end;
@@ -580,11 +621,6 @@ end;
 procedure TForm1.neu2Click(Sender: TObject);
 begin
   newInfodata;
-end;
-
-procedure TForm1.Panel1Click(Sender: TObject);
-begin
-
 end;
 
 procedure TForm1.Panel1Resize(Sender: TObject);
@@ -642,15 +678,13 @@ begin
 
    if CheckBox4.Checked then begin
     create_adlcp_rootv1p2;
-    LStatus.Caption:='erzeuge adlcp_rootv1p2.xsd';
-    Panel1.Refresh;
+    LStatus.Caption:='erzeuge adlcp_rootv1p2.xsd';Panel1.Refresh;
    end;
    ProgressBar1.Position:=70;ProgressBar1.Refresh;
 
    if CheckBox5.Checked then begin
     create_ims_xml;
-    LStatus.Caption:='erzeuge ims_xml.xsd';
-    Panel1.Refresh;
+    LStatus.Caption:='erzeuge ims_xml.xsd';Panel1.Refresh;
    end;
    ProgressBar1.Position:=80;ProgressBar1.Refresh;
 {
@@ -671,7 +705,7 @@ var vorlagedatei,F:TextFile;
       keywords,kw:string;
       t:integer;
 begin
-    vlink:=vorlagenpfad+'imsmanifest.xml';
+    vlink:=vorlagenpfad+ismanifestvorlage;//'imsmanifest.xml';
     if dateida(vlink)then
     begin
 
@@ -758,7 +792,7 @@ begin
       CloseFile(vorlagedatei);
     end
     else
-     showmessage('Die Vorlagen "imsmanifest.xml" konnten nicht gefunden werden.');
+     showmessage('Die Vorlagen "'+ismanifestvorlage+'" konnten nicht gefunden werden.');
 end;
 
 procedure TForm1.create_adlcp_rootv1p2;
@@ -936,12 +970,124 @@ begin
   showmessage('Die Vorlagen "projekt.xml" konnten nicht gefunden werden.');
 end;
 
+procedure TForm1.getManifestvorlagen;
+var
+  SearchResult: TStringList;
+  i: Integer;
+  matchFound: Boolean;
+begin
+   //vorlagenpfad
+   //ComboBoxManifest
+ if not DirectoryExists(vorlagenpfad) then
+  begin
+    ShowMessage('Ordner existiert nicht: ' + vorlagenpfad);
+    Exit;
+  end;
+ // Liste für Suchergebnisse erstellen
+   SearchResult := TStringList.Create;
+   try
+     // Alle Dateien im Ordner finden, die mit "imsmanifest" beginnen
+     FindAllFiles(SearchResult, vorlagenpfad, 'imsmanifest*', False);
+
+     // ComboBox zurücksetzen
+     ComboBoxManifest.Clear;
+     matchFound := False;
+
+     // Gefundene Dateien hinzufügen
+     for i := 0 to SearchResult.Count - 1 do
+     begin
+       ComboBoxManifest.Items.Add(ExtractFileName(SearchResult[i]));
+       // Prüfen, ob der aktuelle Eintrag mit ismanifestvorlage übereinstimmt
+       if ExtractFileName(SearchResult[i]) = ismanifestvorlage then
+       begin
+         ComboBoxManifest.ItemIndex := i;
+         matchFound := True;
+       end;
+     end;
+
+     if not matchFound then
+       ComboBoxManifest.ItemIndex := 0;
+
+    // ComboBoxManifest.Text := ismanifestvorlage;
+
+   finally
+     SearchResult.Free;
+   end;
+
+end;
+
+
+procedure TForm1.addFiletoMerkliste(neuerEintrag:string);
+var i,t, maxIndex: Integer;
+   exists: Boolean;
+begin
+  maxIndex := High(merkeprojekteDateien);  //5 einträge maximal
+
+  // Überprüfen, ob der Eintrag schon im Array existiert
+    exists := False;
+    for i := 1 to maxIndex do
+    begin
+      if merkeprojekteDateien[i] = neuerEintrag then
+      begin
+        exists := True;
+        for t := i downto 2 do
+        begin
+          merkeprojekteDateien[t] := merkeprojekteDateien[t - 1];
+        end;
+
+        merkeprojekteDateien[1] := neuerEintrag;
+        Break;
+      end;
+    end;
+
+    if not exists then
+      begin
+         for i := maxIndex downto 2 do
+          merkeprojekteDateien[i] := merkeprojekteDateien[i - 1];
+
+         merkeprojekteDateien[1] := neuerEintrag;
+      end;
+  merkeprojekteDateien[1] := neuerEintrag;
+
+  refreshAnzeige();
+end;
+
+procedure TForm1.refreshAnzeige();
+var temp2:string;
+     p,maxIndex,i:integer;
+      hathistory:boolean;
+begin
+
+     hathistory:=false;
+     maxIndex := High(merkeprojekteDateien);
+     for i := 1 to maxIndex do
+       begin
+          temp2:=merkeprojekteDateien[i];
+
+           p:=lastpos(temp2,'\');
+           if(p>0)then
+              begin
+                hathistory:=true;
+                temp2:=copy(temp2,p+1,length(temp2));
+               case i of
+                 1: begin f1.Caption:=temp2; f1.Visible:=true; end;
+                 2: begin f2.Caption:=temp2; f2.Visible:=true; end;
+                 3: begin f3.Caption:=temp2; f3.Visible:=true; end;
+                 4: begin f4.Caption:=temp2; f4.Visible:=true; end;
+                 5: begin f5.Caption:=temp2; f5.Visible:=true; end;
+                end;
+              end;
+       end;
+      N2.Visible:=hathistory;
+end;
+
 initialization
 quellPfad:=ExtractFilePath(Application.ExeName);
 ProgammINI:=ExtractFilePath(Application.ExeName)+'makeSCORM.ini';
 vorlagenpfad:=ExtractFilePath(Application.ExeName)+'vorlagen\';
 infodateipfad:=ExtractFilePath(Application.ExeName);
 dateiliste:= TStringList.Create;
+ismanifestvorlage:='imsmanifest_default.xml';
 
 
 finalization

@@ -17,7 +17,7 @@ type
    function HTMLtoString(s:string):string; //konvertiert html in ascii
    function NumbToStr(Numb: LongInt; Base: TNumbBase): String;  //z.B. NumbToStr(888,16)->$378
 
-   function StrHextoInt(wert:string):Int64;    //wandelt Hex-String zu Integer
+   function StrHextoInt(wert:string):integer;    //wandelt Hex-String zu Integer
    function InttoHexStr(wert:Longint):string;    //wandelt integer zu Hex-String
    function Hextoint(wert:string):byte;
    function strtonum(wert:string;istfloat:boolean):double;//string zu Zahl, istfloat=mit Kommastelle
@@ -173,7 +173,7 @@ begin
 end;
 
 
-function StrHextoInt(wert:string):Int64;
+function StrHextoInt(wert:string):integer;
 var t:integer;
     c:char;
     r:byte;

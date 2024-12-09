@@ -1,0 +1,4 @@
+erstelle auf deinem Rechner einen Ordner wo das Programm liegen soll.
+
+kopiere die Datei "makescorm.exe" dort hinein.
+kopiere den Ordner "vorlagen" dort hinein.

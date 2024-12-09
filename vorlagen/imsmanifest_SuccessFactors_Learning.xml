@@ -1,39 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
- <manifest identifier="Manifest_Bildschirmarbeitspl&#228;tze" version="1.0"
+	<!--createt with the makeSCORM V2 [datum] for w.-->
+	<manifest identifier="Manifest_ANOVA" version="1.0"
            xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
            xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_routv1p2p1"
+           xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_rootv1p2p1"
            xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
                                http://www.imsglobal.org/xsd/imsmd_rootv1p2p1 imsmd_rootv1p2p1.xsd
                                http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+
+	
 	<metadata>
-		<schema>ADL SCORM</schema>
-		<schemaversion>1.2</schemaversion>
-		<adlcp:location>kurs.xml</adlcp:location>
+	 <schema>ADL SCORM</schema>
+	 <schemaversion>1.2</schemaversion>
 	</metadata>
-
-
 	<organizations default="TOC1">
 		<organization identifier="TOC1">
 		  <title>[titel]</title>
-		  <<item identifier="SCO_1" identifierref="Res_1">
+		   <item identifier="SCO_1" identifierref="Modul">
 			<title>[titel]</title>
 		  </item>
-			
 		</organization>
 	</organizations>
 
 	<resources>
-  		<resource identifier="Res_1" adlcp:scormtype="sco" type="webcontent" href="[startdatei]">
-			<metadata>
-				<schema>ADL SCORM</schema>
-				<schemaversion>1.2</schemaversion>
-				<adlcp:location>sco.xml</adlcp:location>
-			</metadata>
-
+  		<resource identifier="Modul" adlcp:scormtype="sco" type="webcontent" href="[startdatei]">
 			[dateien]
 		</resource>
-
 	</resources>
 </manifest>
