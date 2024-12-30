@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectSession>
     <PathDelim Value="\"/>
-    <Version Value="12"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
     <Units Count="6">
       <Unit0>
@@ -21,9 +21,9 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="345"/>
+        <TopLine Value="344"/>
         <CursorPos X="68" Y="367"/>
-        <FoldState Value=" T3lR033221164111325 pm7sT0{D]AjVm80k T1o1020D1C pHsU0K3 PidiX0 T6;M01 T0xU7/y"/>
+        <FoldState Value=" T3lR033221164111325 T1o1020D1 T6;M0]70xU7/D"/>
         <UsageCount Value="41"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -182,9 +182,5 @@
         <Caret Line="366" Column="38" TopLine="342"/>
       </Position30>
     </JumpHistory>
-    <RunParams>
-      <FormatVersion Value="2"/>
-      <Modes ActiveMode="default"/>
-    </RunParams>
   </ProjectSession>
 </CONFIG>
